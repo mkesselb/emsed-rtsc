@@ -4,7 +4,6 @@ import java.util.List;
 import static java.util.stream.Collectors.toList;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,11 +19,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/books")
 public class BookController {
 
-    @Autowired
-    private BookService bookService;
+    private final BookService bookService;
+    private final ModelMapper mapper;
 
-    @Autowired
-    private ModelMapper mapper;
+    public BookController(BookService bookService, ModelMapper mapper) {
+        this.bookService = bookService;
+        this.mapper = mapper;
+    }
 
     @GetMapping
     public Iterable<Book> findAll() {
