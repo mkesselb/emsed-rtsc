@@ -1,22 +1,11 @@
 package com.demo.emsed_rtsc;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+public class BookDto {
 
-@Entity
-public class Book {
- 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    private Long id;
 
-    @Column(nullable = false, unique = true)
     private String title;
 
-    @Column(nullable = false)
     private String author;
 
     public long getId() {
@@ -28,7 +17,6 @@ public class Book {
     public String getAuthor() {
         return this.author;
     }
-
     public void setTitle(String title) {
         this.title = title;
     }
@@ -39,3 +27,4 @@ public class Book {
         this.id = id;
     }
 }
+

@@ -1,7 +1,9 @@
 package com.demo.emsed_rtsc;
 
 import java.util.List;
+import static java.util.stream.Collectors.toList;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,33 +21,37 @@ import org.springframework.web.bind.annotation.RestController;
 public class BookController {
 
     @Autowired
-    private BookRepository bookRepository;
+    private BookService bookService;
+
+    @Autowired
+    private ModelMapper mapper;
 
     @GetMapping
     public Iterable<Book> findAll() {
-        return bookRepository.findAll();
+        return bookService.findAll();
     }
 
     @GetMapping("/title/{bookTitle}")
-    public List<Book> findByTitle(@PathVariable String bookTitle) {
-        return bookRepository.findByTitle(bookTitle);
+    public List<BookDto> findByTitle(@PathVariable String bookTitle) {
+        return bookService.findByTitle(bookTitle).stream().map(this::convertToDto).collect(toList());
     }
 
     @GetMapping("/{id}")
     public Book findOne(@PathVariable Long id) {
-        return bookRepository.findById(id).orElseThrow(() -> new BookNotFoundException("book not found"));
+        return bookService.findById(id).orElseThrow(() -> new BookNotFoundException("book not found"));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Book create(@RequestBody Book book) {
-        return bookRepository.save(book);
+    public Book create(@RequestBody BookDto bookDto) {
+        Book book = this.convertToEntity(bookDto);
+        return bookService.save(book);
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        bookRepository.findById(id).orElseThrow(() -> new BookNotFoundException("book not found"));
-        bookRepository.deleteById(id);
+        bookService.findById(id).orElseThrow(() -> new BookNotFoundException("book not found"));
+        bookService.deleteById(id);
     }
 
     @PutMapping("/{id}")
@@ -53,8 +59,21 @@ public class BookController {
         if (book.getId() != id) {
           throw new BookIdMismatchException("book has wrong id");
         }
-        bookRepository.findById(id).get();
-        return bookRepository.save(book);
+        bookService.findById(id).get();
+        return bookService.save(book);
     }
+
+    // https://www.baeldung.com/entity-to-and-from-dto-for-a-java-spring-application
+    // https://www.geeksforgeeks.org/how-to-use-modelmapper-in-spring-boot-with-example-project/
+    public BookDto convertToDto(Book book) {
+        BookDto bookDto = this.mapper.map(book, BookDto.class);
+        return bookDto;
+    }
+
+    public Book convertToEntity(BookDto dto) {
+        Book book = this.mapper.map(dto, Book.class);
+        return book;
+    }
+
 }
 
