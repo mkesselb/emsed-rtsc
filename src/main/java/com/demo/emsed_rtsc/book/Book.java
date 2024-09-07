@@ -1,4 +1,4 @@
-package com.demo.emsed_rtsc;
+package com.demo.emsed_rtsc.book;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

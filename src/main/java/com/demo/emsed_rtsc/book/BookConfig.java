@@ -1,4 +1,4 @@
-package com.demo.emsed_rtsc;
+package com.demo.emsed_rtsc.book;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;

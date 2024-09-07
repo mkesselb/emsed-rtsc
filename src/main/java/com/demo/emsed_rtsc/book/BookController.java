@@ -1,4 +1,4 @@
-package com.demo.emsed_rtsc;
+package com.demo.emsed_rtsc.book;
 
 import java.util.List;
 import static java.util.stream.Collectors.toList;

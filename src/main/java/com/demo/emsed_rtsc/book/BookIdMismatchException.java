@@ -1,4 +1,4 @@
-package com.demo.emsed_rtsc;
+package com.demo.emsed_rtsc.book;
 
 public class BookIdMismatchException extends RuntimeException {
 
