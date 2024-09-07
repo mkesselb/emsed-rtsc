@@ -1,11 +1,11 @@
-package com.demo.emsed_rtsc.book;
+package com.demo.emsed_rtsc;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class BookConfig {
+public class Config {
     
     @Bean
 	public ModelMapper modelMapper() {
