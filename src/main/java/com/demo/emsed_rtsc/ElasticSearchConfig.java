@@ -7,8 +7,8 @@ import org.springframework.data.elasticsearch.client.elc.ElasticsearchConfigurat
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 
 @Configuration
-@EnableElasticsearchRepositories(basePackages = "com.demo.emsed_rtsc.article")
-@ComponentScan(basePackages = { "com.demo.emsed_rtsc.article" })
+@EnableElasticsearchRepositories(basePackages = { "com.demo.emsed_rtsc.article", "com.demo.emsed_rtsc.incidents" })
+@ComponentScan(basePackages = { "com.demo.emsed_rtsc.article", "com.demo.emsed_rtsc.incidents" })
 public class ElasticSearchConfig extends ElasticsearchConfiguration {
 
     @Override

@@ -8,18 +8,18 @@ Checked features are implemented.
 
 ### General
 - Spring Boot Setup
-  - [ ] Use Spring Boot for setting up the application
+  - [x] Use Spring Boot for setting up the application
 - ElasticSearch Integration
-  - [ ] Integrate ElasticSearch for real-time search capabilities
+  - [x] Integrate ElasticSearch for real-time search capabilities
 - Data Persistence
-  - [ ] Use Hibernate for data persistence. Sync this data to ElasticSearch for optimized searching
+  - [x] Use Hibernate for data persistence. Sync this data to ElasticSearch for optimized searching
 - Unit Testing
   - [ ] Implement unit tests for at least two core functionalities: incident logging and incident search
 
 Incidents
 - Create and Log Incidents
-  - [ ] Implement a RESTful API endpoint to log emergency incidents
-  - [ ] Incidents should have attributes like incidentType, location, timestamp, and severityLevel
+  - [x] Implement a RESTful API endpoint to log emergency incidents
+  - [x] Incidents should have attributes like incidentType, location, timestamp, and severityLevel
 - Search Incidents        
   - [ ] Create another API endpoint to perform searches based on parameters such as incidentType, location, and timestamp  
   - [ ] Allow combination searches (e.g., all 'fire' incidents in a specific 'location')
