@@ -40,8 +40,18 @@ public class IncidentController {
         return incidentRepository.save(newIncident);
     }
 
+    @PostMapping("/search")
+    public Iterable<Incident> findAll(@RequestBody IncidentSearchDto searchParams) {
+        // TODO: build a query part for each non-empty / non-null field
+
+        return incidentRepository.findAll(PageRequest.of(0, 10));
+    }
+
     private Incident createIncidentFromPostDto(IncidentPostDto postDto) {
         Incident newIncident = this.mapper.map(postDto, Incident.class);
+        if (newIncident.getLocation() == null || newIncident.getIncidentType() == null || newIncident.getSeverityLevel() == null) {
+            throw new IncidentDataException("Invalid data input");
+        }
         return newIncident;
     }
 
