@@ -1,5 +1,7 @@
 package com.demo.emsed_rtsc.incidents;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import static java.util.stream.Collectors.toList;
@@ -20,13 +22,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import co.elastic.clients.elasticsearch._types.FieldValue;
+import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.GeoDistanceQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
+import co.elastic.clients.elasticsearch._types.query_dsl.RangeQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.TermsQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.TermsQueryField;
+import co.elastic.clients.json.JsonData;
 
 @RestController
 @RequestMapping("/api/incidents")
 public class IncidentController {
-    
+
+    private final SimpleDateFormat strictDateOptionalTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
     private  ElasticsearchOperations operations;
     private final IncidentRepository incidentRepository;
     private final ModelMapper mapper;
@@ -39,7 +49,7 @@ public class IncidentController {
 
     @GetMapping
     public Iterable<Incident> findAll() {
-        return incidentRepository.findAll(PageRequest.of(0, 10));
+        return incidentRepository.findAll(PageRequest.of(0, 100));
     }
 
     @PostMapping
@@ -52,28 +62,64 @@ public class IncidentController {
 
     @PostMapping("/search")
     public Iterable<Incident> findAll(@RequestBody IncidentSearchDto searchParams) {
-        // TODO: build a query part for each non-empty / non-null field
-        // plan is: build a field query for incidentType + severityLevel
+        List<Query> queries = new ArrayList<>();
+        List<Query> filters = new ArrayList<>();
+
+        Date lte = searchParams.getTo();
+        Date gte = searchParams.getFrom();
+        RangeQuery rqDaterange = QueryBuilders
+            .range()
+            .field("timestamp")
+            .lte(lte == null ? JsonData.of("now/d") : JsonData.of(strictDateOptionalTimeFormat.format(lte)))
+            .gte(gte == null ? JsonData.of("now-7d/d") : JsonData.of(strictDateOptionalTimeFormat.format(gte)))
+            .build();
+        System.out.println(rqDaterange);
+        queries.add(rqDaterange._toQuery());
+
+        TermsQuery tqIncidentTypes = null;
+        if (searchParams.getIncidentTypes() != null && searchParams.getIncidentTypes().size() > 0) {
+            tqIncidentTypes = QueryBuilders
+                .terms()
+                .field("incidentType")
+                .terms(TermsQueryField.of(t -> t.value(searchParams.getIncidentTypes().stream().map(FieldValue::of).collect(toList()))))
+                .build();
+            queries.add(tqIncidentTypes._toQuery());
+        }
+        System.out.println(tqIncidentTypes);
+
+        TermsQuery tqSeverityLevels = null;
+        if (searchParams.getSeverityLevels() != null && searchParams.getSeverityLevels().size() > 0) {
+            tqSeverityLevels = QueryBuilders
+                .terms()
+                .field("severityLevel")
+                .terms(TermsQueryField.of(t -> t.value(searchParams.getSeverityLevels().stream().map(FieldValue::of).collect(toList()))))
+                .build();
+            queries.add(tqSeverityLevels._toQuery());
+        }
+        System.out.println(tqSeverityLevels);
 
         // geo location search variants:
         // https://www.elastic.co/de/blog/geo-location-and-search
         // for now, only support distance-based searching
-        GeoDistanceQuery gdq;
+        GeoDistanceQuery gdq = null;
         if (searchParams.getLocation() != null) { 
             Location location = searchParams.getLocation();
             if (searchParams.getLocationDistance() != null && searchParams.getLocationDistance().length() > 0) {
-                gdq = QueryBuilders.geoDistance()
+                gdq = QueryBuilders
+                    .geoDistance()
                     .field("location")
                     .distance(searchParams.getLocationDistance())
                     .location(loc -> loc.latlon(latlonLoc -> latlonLoc.lon(location.getLongitude()).lat(location.getLatitude()))).build();
+                filters.add(gdq._toQuery());
             }
         }
+        System.out.println(gdq);
 
-        // TODO: build query based on available matchings and filters
+        BoolQuery bq = QueryBuilders.bool().must(queries).filter(filters).build();
+        System.out.println(bq);
         NativeQuery searchQuery = new NativeQueryBuilder()
-        .withQuery(QueryBuilders.bool().build()._toQuery())
-        .withQuery(QueryBuilders.match().field("id").query("").build()._toQuery())
-        .build();
+            .withQuery(bq._toQuery())
+            .build();
 
         SearchHits<Incident> incidents = 
             this.operations.search(searchQuery, Incident.class, IndexCoordinates.of("incidents"));

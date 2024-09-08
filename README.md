@@ -21,14 +21,14 @@ Incidents
   - [x] Implement a RESTful API endpoint to log emergency incidents
   - [x] Incidents should have attributes like incidentType, location, timestamp, and severityLevel
 - Search Incidents        
-  - [ ] Create another API endpoint to perform searches based on parameters such as incidentType, location, and timestamp  
-  - [ ] Allow combination searches (e.g., all 'fire' incidents in a specific 'location')
+  - [x] Create another API endpoint to perform searches based on parameters such as incidentType, location, and timestamp  
+  - [x] Allow combination searches (e.g., all 'fire' incidents in a specific 'location')
 
 ElasticSearch
 - Data Indexing
-  - [ ] Use ElasticSearch to index the emergency incidents. The indexed data should be optimized for efficient querying
+  - [x] `(?)` Use ElasticSearch to index the emergency incidents. The indexed data should be optimized for efficient querying
 - Search Optimization
-  - [ ] Leverage ElasticSearch's capabilities to ensure that search queries are fast and yield accurate results
+  - [x] `(?)` Leverage ElasticSearch's capabilities to ensure that search queries are fast and yield accurate results
 
 Optional Task - Real-Time Dashboard
 - WebSocket Integration

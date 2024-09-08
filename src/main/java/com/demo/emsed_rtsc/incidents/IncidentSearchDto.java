@@ -1,6 +1,7 @@
 package com.demo.emsed_rtsc.incidents;
 
 import java.util.Date;
+import java.util.List;
 
 public class IncidentSearchDto {
 
@@ -8,9 +9,9 @@ public class IncidentSearchDto {
 
     private String locationDistance;
 
-    private String[] severityLevels;
+    private List<String> severityLevels;
 
-    private String[] incidentTypes;
+    private List<String> incidentTypes;
 
     private Date from;
     private Date to;
@@ -23,11 +24,11 @@ public class IncidentSearchDto {
         return this.locationDistance;
     }
 
-    public String[] getSeverityLevels() {
+    public List<String> getSeverityLevels() {
         return this.severityLevels;
     }
 
-    public String[] getIncidentType() {
+    public List<String> getIncidentTypes() {
         return this.incidentTypes;
     }
 
@@ -47,11 +48,11 @@ public class IncidentSearchDto {
         this.locationDistance = locationDistance;
     }
 
-    public void setSeverityLevel(String[] level) {
+    public void setSeverityLevels(List<String> level) {
         this.severityLevels = level;
     }
 
-    public void setIncidentType(String[] type) {
+    public void setIncidentTypes(List<String> type) {
         this.incidentTypes = type;
     }
 
