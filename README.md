@@ -26,9 +26,60 @@ Incidents
 
 ElasticSearch
 - Data Indexing
-  - [x] `(?)` Use ElasticSearch to index the emergency incidents. The indexed data should be optimized for efficient querying
+  - [x] Use ElasticSearch to index the emergency incidents. The indexed data should be optimized for efficient querying
+    - `(?)` using the index of the PDF
 - Search Optimization
-  - [x] `(?)` Leverage ElasticSearch's capabilities to ensure that search queries are fast and yield accurate results
+  - [x] Leverage ElasticSearch's capabilities to ensure that search queries are fast and yield accurate results
+    - `(?)` Querying with a query like that (programmatically built):
+    <details>
+    <summary>Query</summary>
+    
+    ```
+    {
+      "query": {
+          "bool": {
+              "filter": [
+                  {
+                      "geo_distance": {
+                          "location": {
+                              "lat": 0.1,
+                              "lon": 1.2
+                          },
+                          "distance": "5km"
+                      }
+                  }
+              ],
+              "must": [
+                  {
+                      "range": {
+                          "timestamp": {
+                              "gte": "2024-09-06T10:21:28.796+00:00",
+                              "lte": "2024-09-08T10:21:28.796+00:00"
+                          }
+                      }
+                  },
+                  {
+                      "terms": {
+                          "incidentType": [
+                              "FIRE",
+                              "MEDICAL"
+                          ]
+                      }
+                  },
+                  {
+                      "terms": {
+                          "severityLevel": [
+                              "MEDIUM",
+                              "HIGH"
+                          ]
+                      }
+                  }
+              ]
+          }
+      }
+    }
+    ```
+    <details>
 
 Optional Task - Real-Time Dashboard
 - WebSocket Integration

@@ -7,12 +7,16 @@ import java.util.List;
 import static java.util.stream.Collectors.toList;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.PageRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
 import org.springframework.data.elasticsearch.client.elc.NativeQueryBuilder;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
-import org.springframework.data.elasticsearch.core.SearchHit;
+import org.springframework.data.elasticsearch.core.SearchHitSupport;
 import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.SearchPage;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,10 +35,13 @@ import co.elastic.clients.elasticsearch._types.query_dsl.RangeQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.TermsQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.TermsQueryField;
 import co.elastic.clients.json.JsonData;
+import io.micrometer.common.lang.Nullable;
 
 @RestController
 @RequestMapping("/api/incidents")
 public class IncidentController {
+
+    Logger logger = LoggerFactory.getLogger(IncidentController.class);
 
     private final SimpleDateFormat strictDateOptionalTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
     private  ElasticsearchOperations operations;
@@ -48,8 +55,8 @@ public class IncidentController {
     }
 
     @GetMapping
-    public Iterable<Incident> findAll() {
-        return incidentRepository.findAll(PageRequest.of(0, 100));
+    public Iterable<Incident> findAll(Pageable pageable) {
+        return incidentRepository.findAll(pageable);
     }
 
     @PostMapping
@@ -61,7 +68,7 @@ public class IncidentController {
     }
 
     @PostMapping("/search")
-    public Iterable<Incident> findAll(@RequestBody IncidentSearchDto searchParams) {
+    public Page<Incident> findAll(@RequestBody IncidentSearchDto searchParams, @Nullable Pageable pageable) {
         List<Query> queries = new ArrayList<>();
         List<Query> filters = new ArrayList<>();
 
@@ -73,7 +80,7 @@ public class IncidentController {
             .lte(lte == null ? JsonData.of("now/d") : JsonData.of(strictDateOptionalTimeFormat.format(lte)))
             .gte(gte == null ? JsonData.of("now-7d/d") : JsonData.of(strictDateOptionalTimeFormat.format(gte)))
             .build();
-        System.out.println(rqDaterange);
+        logger.info(rqDaterange.toString());
         queries.add(rqDaterange._toQuery());
 
         TermsQuery tqIncidentTypes = null;
@@ -84,8 +91,8 @@ public class IncidentController {
                 .terms(TermsQueryField.of(t -> t.value(searchParams.getIncidentTypes().stream().map(FieldValue::of).collect(toList()))))
                 .build();
             queries.add(tqIncidentTypes._toQuery());
+            logger.info(tqIncidentTypes.toString());
         }
-        System.out.println(tqIncidentTypes);
 
         TermsQuery tqSeverityLevels = null;
         if (searchParams.getSeverityLevels() != null && searchParams.getSeverityLevels().size() > 0) {
@@ -95,8 +102,8 @@ public class IncidentController {
                 .terms(TermsQueryField.of(t -> t.value(searchParams.getSeverityLevels().stream().map(FieldValue::of).collect(toList()))))
                 .build();
             queries.add(tqSeverityLevels._toQuery());
+            logger.info(tqSeverityLevels.toString());
         }
-        System.out.println(tqSeverityLevels);
 
         // geo location search variants:
         // https://www.elastic.co/de/blog/geo-location-and-search
@@ -111,20 +118,21 @@ public class IncidentController {
                     .distance(searchParams.getLocationDistance())
                     .location(loc -> loc.latlon(latlonLoc -> latlonLoc.lon(location.getLongitude()).lat(location.getLatitude()))).build();
                 filters.add(gdq._toQuery());
+                logger.info(gdq.toString());
             }
         }
-        System.out.println(gdq);
 
         BoolQuery bq = QueryBuilders.bool().must(queries).filter(filters).build();
-        System.out.println(bq);
+        logger.info(bq.toString());
         NativeQuery searchQuery = new NativeQueryBuilder()
             .withQuery(bq._toQuery())
             .build();
+        searchQuery.setPageable(pageable);
 
         SearchHits<Incident> incidents = 
             this.operations.search(searchQuery, Incident.class, IndexCoordinates.of("incidents"));
-        List<SearchHit<Incident>> inc = incidents.getSearchHits();
-        return inc.stream().map(SearchHit<Incident>::getContent).collect(toList());
+            SearchPage<Incident> searchPageIncidents = SearchHitSupport.searchPageFor(incidents, pageable);
+        return (Page<Incident>) SearchHitSupport.unwrapSearchHits(searchPageIncidents);
     }
 
     private Incident createIncidentFromPostDto(IncidentPostDto postDto) {
