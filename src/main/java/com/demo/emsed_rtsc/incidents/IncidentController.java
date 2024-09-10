@@ -75,6 +75,9 @@ public class IncidentController {
 
     @PostMapping("/search")
     public Page<Incident> search(@RequestBody IncidentSearchDto searchParams, @Nullable Pageable pageable) {
+        // TODO: right now, we are tightly coupled with the ES query builders
+        // ideally, we would use a wrapped class for query builders
+        // so that we can decouple out the persisting layer from the controller
         List<Query> queries = new ArrayList<>();
         List<Query> filters = new ArrayList<>();
 
