@@ -14,7 +14,7 @@ Checked features are implemented.
 - Data Persistence
   - [x] Use Hibernate for data persistence. Sync this data to ElasticSearch for optimized searching
 - Unit Testing
-  - [ ] Implement unit tests for at least two core functionalities: incident logging and incident search
+  - [x] Implement unit tests for at least two core functionalities: incident logging and incident search
 
 Incidents
 - Create and Log Incidents

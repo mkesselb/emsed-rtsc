@@ -3,7 +3,9 @@ package com.demo.emsed_rtsc.incidents;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import static java.util.stream.Collectors.toList;
 
 import org.modelmapper.ModelMapper;
@@ -47,6 +49,9 @@ public class IncidentController {
     private final ElasticsearchOperations operations;
     private final IncidentRepository incidentRepository;
     private final ModelMapper mapper;
+
+    // TODO: this structure should be periodically cleared
+    private Map<Integer, Map<String, Query>> queries = new HashMap<>();
 
     public IncidentController(IncidentRepository incidentRepository, ModelMapper mapper, ElasticsearchOperations elasticsearchOperations) {
         this.incidentRepository = incidentRepository;
@@ -134,8 +139,19 @@ public class IncidentController {
 
         SearchHits<Incident> incidents = 
             this.operations.search(searchQuery, Incident.class, IndexCoordinates.of("incidents"));
+
         SearchPage<Incident> searchPageIncidents = SearchHitSupport.searchPageFor(incidents, pageable);
-        return (Page<Incident>) SearchHitSupport.unwrapSearchHits(searchPageIncidents);
+        Page<Incident> shs = (Page<Incident>) SearchHitSupport.unwrapSearchHits(searchPageIncidents);
+
+        int queryHash = shs.hashCode();
+        this.queries.put(queryHash, new HashMap<>());
+        this.queries.get(queryHash).put("rqDaterange", rqDaterange._toQuery());
+        this.queries.get(queryHash).put("tqIncidentTypes", tqIncidentTypes == null ? null : tqIncidentTypes._toQuery());
+        this.queries.get(queryHash).put("tqSeverityLevels", tqSeverityLevels == null ? null : tqSeverityLevels._toQuery());
+        this.queries.get(queryHash).put("gdq", gdq == null ? null : gdq._toQuery());
+        this.queries.get(queryHash).put("bq", bq._toQuery());
+
+        return shs;
     }
 
     private Incident createIncidentFromPostDto(IncidentPostDto postDto) {
@@ -144,6 +160,14 @@ public class IncidentController {
             throw new IncidentDataException("Invalid data input");
         }
         return newIncident;
+    }
+
+    public Map<String, Query> getQueries(int hash) {
+        return this.queries.get(hash);
+    }
+
+    public SimpleDateFormat getDateFormat() {
+        return this.strictDateOptionalTimeFormat;
     }
 
 }
