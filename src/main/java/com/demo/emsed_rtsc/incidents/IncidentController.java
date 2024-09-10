@@ -44,7 +44,7 @@ public class IncidentController {
     Logger logger = LoggerFactory.getLogger(IncidentController.class);
 
     private final SimpleDateFormat strictDateOptionalTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-    private  ElasticsearchOperations operations;
+    private final ElasticsearchOperations operations;
     private final IncidentRepository incidentRepository;
     private final ModelMapper mapper;
 
@@ -55,8 +55,9 @@ public class IncidentController {
     }
 
     @GetMapping
-    public Iterable<Incident> findAll(Pageable pageable) {
-        return incidentRepository.findAll(pageable);
+    public Page<Incident> findAll(Pageable pageable) {
+        Page<Incident> incidents = incidentRepository.findAll(pageable);
+        return incidents;
     }
 
     @PostMapping
@@ -68,7 +69,7 @@ public class IncidentController {
     }
 
     @PostMapping("/search")
-    public Page<Incident> findAll(@RequestBody IncidentSearchDto searchParams, @Nullable Pageable pageable) {
+    public Page<Incident> search(@RequestBody IncidentSearchDto searchParams, @Nullable Pageable pageable) {
         List<Query> queries = new ArrayList<>();
         List<Query> filters = new ArrayList<>();
 
@@ -127,11 +128,13 @@ public class IncidentController {
         NativeQuery searchQuery = new NativeQueryBuilder()
             .withQuery(bq._toQuery())
             .build();
-        searchQuery.setPageable(pageable);
+        if (pageable != null) {
+            searchQuery.setPageable(pageable);
+        }
 
         SearchHits<Incident> incidents = 
             this.operations.search(searchQuery, Incident.class, IndexCoordinates.of("incidents"));
-            SearchPage<Incident> searchPageIncidents = SearchHitSupport.searchPageFor(incidents, pageable);
+        SearchPage<Incident> searchPageIncidents = SearchHitSupport.searchPageFor(incidents, pageable);
         return (Page<Incident>) SearchHitSupport.unwrapSearchHits(searchPageIncidents);
     }
 

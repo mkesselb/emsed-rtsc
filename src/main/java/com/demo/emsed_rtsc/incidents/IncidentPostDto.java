@@ -8,6 +8,16 @@ public class IncidentPostDto {
 
     private String incidentType;
 
+    public IncidentPostDto() {
+        // empty constructor
+    }
+
+    public IncidentPostDto(Location location, String severityLevel, String incidentType) {
+        this.location = location;
+        this.severityLevel = severityLevel;
+        this.incidentType = incidentType;
+    }
+
     public Location getLocation() {
         return this.location;
     }
