@@ -89,8 +89,8 @@ public class IncidentControllerUnitTest {
 
         Map<String, Query> queries = this.incidentController.getQueries(foundIncidents.hashCode());
 
-        assertEquals("Query: {\"timestamp\":{\"gte\":\"now-7d/d\",\"lte\":\"now/d\"}}", queries.get("rqDaterange").toString());
-        assertEquals("Query: {\"filter\":[],\"must\":[{\"range\":{\"timestamp\":{\"gte\":\"now-7d/d\",\"lte\":\"now/d\"}}}]}", queries.get("bq").toString());
+        assertEquals("Query: {\"range\":{\"timestamp\":{\"gte\":\"now-7d/d\",\"lte\":\"now/d\"}}}", queries.get("rqDaterange").toString());
+        assertEquals("Query: {\"bool\":{\"filter\":[],\"must\":[{\"range\":{\"timestamp\":{\"gte\":\"now-7d/d\",\"lte\":\"now/d\"}}}]}}", queries.get("bq").toString());
     }
 
     @Test

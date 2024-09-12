@@ -2,6 +2,17 @@
 
 Emergency Services Dashboard with Real-Time Search Capabilities (Spring Boot demo)
 
+## Running the Application
+
+```
+mvn clean package
+docker build -t emsed .
+docker run -p 8080:8080 emsed
+
+docker-compose up --build
+```
+
+
 ## Specifications / Features
 
 Checked features are implemented.
@@ -31,7 +42,7 @@ ElasticSearch
     - [ ] `TODO` create index in initialization step
 - Search Optimization
   - [x] Leverage ElasticSearch's capabilities to ensure that search queries are fast and yield accurate results
-    - `(?)` Querying with a query as below (programmatically built with `QueryBuilders` and `NativeQueryBuilder`, searching via `ElasticsearchOperations::search`):
+    - Querying with a query as below (programmatically built with `QueryBuilders` and `NativeQueryBuilder`, searching via `ElasticsearchOperations::search`):
     <details>
     <summary>Query</summary>
 
@@ -90,5 +101,5 @@ Optional Task - Real-Time Dashboard
 
 Optional Task - Dockerization
 - Docker Setup
-  - [ ] Dockerize the application, including ElasticSearch, to make it portable and easy to deploy
+  - [x] Dockerize the application, including ElasticSearch, to make it portable and easy to deploy
 

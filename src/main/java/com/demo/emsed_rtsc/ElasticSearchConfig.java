@@ -1,5 +1,8 @@
 package com.demo.emsed_rtsc;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.elasticsearch.client.ClientConfiguration;
@@ -11,10 +14,17 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
 @ComponentScan(basePackages = { "com.demo.emsed_rtsc.article", "com.demo.emsed_rtsc.incidents" })
 public class ElasticSearchConfig extends ElasticsearchConfiguration {
 
+    @Value("${spring.elasticsearch.uris:localhost:9200}")
+    private String elasticSearchURIs;
+
+    Logger logger = LoggerFactory.getLogger(ElasticSearchConfig.class);
+
+    // TODO: align this with docker-compose network address
     @Override
     public ClientConfiguration clientConfiguration() {
-		return ClientConfiguration.builder()           
-			.connectedTo("localhost:9200")
-			.build();
+      logger.info("connecting to: " + elasticSearchURIs);
+      return ClientConfiguration.builder()           
+        .connectedTo(this.elasticSearchURIs)
+        .build();
     }
 }
