@@ -14,17 +14,19 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
 @ComponentScan(basePackages = { "com.demo.emsed_rtsc.article", "com.demo.emsed_rtsc.incidents" })
 public class ElasticSearchConfig extends ElasticsearchConfiguration {
 
-    @Value("${spring.elasticsearch.uris:localhost:9200}")
+    @Value("${spring.elasticsearch.uris:}")
     private String elasticSearchURIs;
+
+    private String defaultURI = "localhost:9200";
 
     Logger logger = LoggerFactory.getLogger(ElasticSearchConfig.class);
 
-    // TODO: align this with docker-compose network address
     @Override
     public ClientConfiguration clientConfiguration() {
       logger.info("connecting to: " + elasticSearchURIs);
+
       return ClientConfiguration.builder()           
-        .connectedTo(this.elasticSearchURIs)
+        .connectedTo(elasticSearchURIs.length() > 0 ? elasticSearchURIs : defaultURI)
         .build();
     }
 }
