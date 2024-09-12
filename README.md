@@ -39,7 +39,7 @@ ElasticSearch
 - Data Indexing
   - [x] Use ElasticSearch to index the emergency incidents. The indexed data should be optimized for efficient querying
     - currently using the index-creation of the snippet in assignment.
-    - [ ] `TODO` create index in initialization step
+    - [x] create index in initialization step -> should be handled by auto-creation in `Incident.java` elasticsearch `@Document`.
 - Search Optimization
   - [x] Leverage ElasticSearch's capabilities to ensure that search queries are fast and yield accurate results
     - Querying with a query as below (programmatically built with `QueryBuilders` and `NativeQueryBuilder`, searching via `ElasticsearchOperations::search`):

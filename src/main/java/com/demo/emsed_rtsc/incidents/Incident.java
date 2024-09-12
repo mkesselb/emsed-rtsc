@@ -17,10 +17,10 @@ public class Incident {
     @Field(type = FieldType.Nested, includeInParent = true)
     private Location location;
 
-    @Field(type = FieldType.Nested, includeInParent = true)
+    @Field(type = FieldType.Keyword, includeInParent = true)
     private SeverityLevel severityLevel;
 
-    @Field(type = FieldType.Nested, includeInParent = true)
+    @Field(type = FieldType.Keyword, includeInParent = true)
     private IncidentType incidentType;
     
     private Date timestamp;
