@@ -4,14 +4,21 @@ Emergency Services Dashboard with Real-Time Search Capabilities (Spring Boot dem
 
 ## Running the Application
 
-```
-mvn clean package
-docker build -t emsed .
-docker run -p 8080:8080 emsed
+Running the application consists of:
+- download the `bootstrapping release version` from Github. This contains a ready-to-use `.jar` for bootstrapping the application.
+- run docker-compose to create the Spring Boot & elastic-search container
 
+```
 docker-compose up --build
 ```
 
+`Note:` after starting the first elastic-search container with the bootstrapping version, the application can be tested and re-built with:
+
+```
+.\mvnw.cmd clean package
+```
+
+This is not possible before as the startup application context needs a running elasticsearch (see the class `src\main\java\com\demo\emsed_rtsc\ElasticSearchConfig.java`).
 
 ## Specifications / Features
 
@@ -103,3 +110,7 @@ Optional Task - Dockerization
 - Docker Setup
   - [x] Dockerize the application, including ElasticSearch, to make it portable and easy to deploy
 
+### Time spent:
+
+- Spring tutorials: 10h
+- Implementing functionality: 11.5h

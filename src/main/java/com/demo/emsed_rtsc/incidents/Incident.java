@@ -5,6 +5,7 @@ import java.util.Date;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.GeoPointField;
 
 import jakarta.persistence.Id;
 
@@ -14,6 +15,7 @@ public class Incident {
     @Id
     private String id;
 
+    @GeoPointField
     @Field(type = FieldType.Nested, includeInParent = true)
     private Location location;
 
@@ -23,6 +25,7 @@ public class Incident {
     @Field(type = FieldType.Keyword, includeInParent = true)
     private IncidentType incidentType;
     
+    @Field(type = FieldType.Date, includeInParent = true)
     private Date timestamp;
 
     public String getId() {
