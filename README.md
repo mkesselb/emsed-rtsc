@@ -5,9 +5,9 @@ Emergency Services Dashboard with Real-Time Search Capabilities (Spring Boot dem
 ## Running the Application
 
 Running the application consists of:
-- download the `bootstrapping release version` from Github. This contains a ready-to-use `.jar` for bootstrapping the application.
-- run docker-compose to create the Spring Boot & elastic-search container
-
+- download the `bootstrapping release version` from Github
+- put the ready-to-use `.jar` for bootstrapping the application to the folder path `target/emsed_rtsc-0.1.0.jar`.
+- run docker-compose to create the Spring Boot & elastic-search container:
 ```
 docker-compose up --build
 ```
@@ -18,7 +18,7 @@ docker-compose up --build
 .\mvnw.cmd clean package
 ```
 
-This is not possible before as the startup application context needs a running elasticsearch (see the class `src\main\java\com\demo\emsed_rtsc\ElasticSearchConfig.java`).
+This is not possible before as the startup application context needs a running elasticsearch instance on localhost (see the class `src\main\java\com\demo\emsed_rtsc\ElasticSearchConfig.java`).
 
 ## Specifications / Features
 
@@ -102,9 +102,11 @@ ElasticSearch
 
 Optional Task - Real-Time Dashboard
 - WebSocket Integration
-  - [ ] Integrate a WebSocket using Spring to provide real-time updates of incidents
+  - [x] Integrate a WebSocket using Spring to provide real-time updates of incidents
 - UI (Optional)
   - [ ] Implement a simple UI using Thymeleaf to visualize these real-time updates. This is for extra points and is not mandatory
+    - [x] Implemented a simple UI (HTML/JS)
+    - [ ] Implement with Thymeleaf 
 
 Optional Task - Dockerization
 - Docker Setup
@@ -112,5 +114,5 @@ Optional Task - Dockerization
 
 ### Time spent:
 
-- Spring tutorials: 10h
-- Implementing functionality: 11.5h
+- Spring tutorials: 11h
+- Implementing functionality: 13h

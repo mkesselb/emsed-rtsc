@@ -11,6 +11,7 @@ import static java.util.stream.Collectors.toList;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
@@ -27,6 +28,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
@@ -49,14 +53,22 @@ public class IncidentController {
     private final ElasticsearchOperations operations;
     private final IncidentRepository incidentRepository;
     private final ModelMapper mapper;
+    private final SimpMessagingTemplate brokerMessagingTemplate;
 
     // TODO: this structure should be periodically cleared
     private Map<Integer, Map<String, Query>> queries = new HashMap<>();
 
-    public IncidentController(IncidentRepository incidentRepository, ModelMapper mapper, ElasticsearchOperations elasticsearchOperations) {
+    public IncidentController(IncidentRepository incidentRepository, ModelMapper mapper, ElasticsearchOperations elasticsearchOperations, SimpMessagingTemplate brokerMessagingTemplate) {
         this.incidentRepository = incidentRepository;
         this.mapper = mapper;
         this.operations = elasticsearchOperations;
+        this.brokerMessagingTemplate = brokerMessagingTemplate;
+    }
+
+    @MessageMapping("/search")
+    @SendTo("/topic/incidents")
+    public Page<Incident> searchViaWebsocket(IncidentSearchDto searchParams) {
+        return this.search(searchParams, null);
     }
 
     @GetMapping
@@ -70,7 +82,11 @@ public class IncidentController {
     public Incident create(@RequestBody IncidentPostDto incident) {
         Incident newIncident = this.createIncidentFromPostDto(incident);
         newIncident.setTimestamp(new Date());
-        return incidentRepository.save(newIncident);
+        Incident savedIncident = incidentRepository.save(newIncident);
+
+        this.brokerMessagingTemplate.convertAndSend("/topic/incident", savedIncident);
+
+        return savedIncident;
     }
 
     @PostMapping("/search")
