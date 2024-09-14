@@ -27,9 +27,19 @@
         <div class="col-md-6">
             <form class="form-inline">
                 <div class="form-group">
-                    <label for="name">Filter incidents</label>
-                    <input type="text" id="severityLevel" class="form-control" placeholder="Severity level...">
-                    <input type="text" id="incidentType" class="form-control" placeholder="Incident type...">
+                    <label for="severityLevel">Search incidents</label>
+                    <select name="severityLevel" id="severityLevel" class="form-control" multiple>
+                        <option value="">No level</option>
+                        <option value="LOW">Low</option>
+                        <option value="MEDIUM">Medium</option>
+                        <option value="HIGH">High</option>
+                    </select>
+                    <select name="incidentType" id="incidentType" class="form-control" multiple>
+                        <option value="">No type</option>
+                        <option value="MEDICAL">Medical</option>
+                        <option value="FIRE">Fire</option>
+                        <option value="CYBERATTACK">Cyberattack</option>
+                    </select>
                 </div>
                 <button id="send" class="btn btn-default" type="submit">Send</button>
             </form>

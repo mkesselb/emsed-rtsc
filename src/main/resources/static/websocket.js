@@ -7,11 +7,11 @@ const stompClient = new StompJs.Client({
 stompClient.onConnect = (frame) => {
     setConnected(true);
     console.log('Connected: ' + frame);
-    stompClient.subscribe('/topic/incidents', (greeting) => {
-        showIncidents(JSON.parse(greeting.body));
+    stompClient.subscribe('/topic/incidents', (incidentsSearchResponse) => {
+        showIncidents(JSON.parse(incidentsSearchResponse.body));
     });
-    stompClient.subscribe('/topic/incident', (greeting) => {
-        showIncident(JSON.parse(greeting.body));
+    stompClient.subscribe('/topic/incident', (incidentCreationResponse) => {
+        showIncident(JSON.parse(incidentCreationResponse.body));
     });
 };
 
@@ -47,8 +47,8 @@ function disconnect() {
 }
 
 function searchIncidents() {
-    let severityLevels = $("#severityLevel").val() === "" ? null : [$("#severityLevel").val()]
-    let incidentTypes = $("#incidentType").val() === "" ? null : [$("#incidentType").val()]
+    let severityLevels = $("#severityLevel").val() === "" ? null : [...$("#severityLevel").val().filter((level) => {return (level !== "")})]
+    let incidentTypes = $("#incidentType").val() === "" ? null : [...$("#incidentType").val().filter((level) => {return (level !== "")})]
     let body = {'severityLevels': severityLevels, 'incidentTypes': incidentTypes};
     console.log("sending: " + JSON.stringify(body))
     stompClient.publish({
@@ -58,6 +58,8 @@ function searchIncidents() {
 }
 
 function showIncidents(message) {
+    knownIds = [];
+    $("#incidents").empty();
     message.content.forEach(element => {
         showIncident(element);
     });

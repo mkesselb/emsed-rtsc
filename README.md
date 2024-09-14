@@ -20,6 +20,51 @@ docker-compose up --build
 
 This is not possible before as the startup application context needs a running elasticsearch instance on localhost (see the class `src\main\java\com\demo\emsed_rtsc\ElasticSearchConfig.java`).
 
+### Interacting with the Application
+
+API endpoints:
+- `GET localhost:8081/api/incidents`: return incidents paged
+- `POST localhost:8081/api/incidents`: create a new incident, e.g. with body:
+```
+{
+    "location": {
+        "lat": 1.2,
+        "lon": 2.1
+    },
+    "severityLevel": "LOW",
+    "incidentType": "MEDICAL"
+}
+```
+- `POST localhost:8081/api/incidents/search`: search incidents paged, e.g. with body:
+```
+{
+    "location": {
+        "lat": 0,
+        "lon": 1
+    },
+    "locationDistance": "1000km",
+    "severityLevels": [
+        "LOW",
+        "MEDIUM",
+        "HIGH"
+    ],
+    "incidentTypes": [
+        "MEDICAL"
+    ],
+    "to": "2024-09-14T10:21:28.796+00:00",
+    "from": "2024-09-06T07:21:28.796+00:00"
+}
+```
+
+Websocket demo: `http://localhost:8081/websocket.html`
+
+Websocket paths:
+- Incoming
+  - `/app/search` with same body as `POST localhost:8081/api/incidents/search`
+- Outgoing
+  - `/topic/incidents` with response body of `POST localhost:8081/api/incidents/search`
+  - `/topic/incident` with response body of `POST localhost:8081/api/incidents`
+
 ## Specifications / Features
 
 Checked features are implemented.
@@ -106,7 +151,7 @@ Optional Task - Real-Time Dashboard
 - UI (Optional)
   - [ ] Implement a simple UI using Thymeleaf to visualize these real-time updates. This is for extra points and is not mandatory
     - [x] Implemented a simple UI (HTML/JS)
-    - [ ] Implement with Thymeleaf 
+    - [ ] Implement using Thymeleaf (would be helpful to get the Enum values for multi-select field)
 
 Optional Task - Dockerization
 - Docker Setup
